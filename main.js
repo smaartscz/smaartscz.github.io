@@ -1,39 +1,31 @@
 const output = document.querySelector('.output');
 let request, data;
-const xhr = new XMLHttpRequest();
-let path = "http://" + getSettings("ip") + ":3000/"
+let path = "ws://" + getSettings("ip") + ":3000/"
+const ws = new WebSocket(path);
 //Load buttons on startup
 document.addEventListener('DOMContentLoaded', htmlSettings(), false); 
 
 
-function getSettings(cname){
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for(var i = 0; i <ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
 
-async function getButtons(){
-xhr.open('GET', path + 'list', true);
-xhr.onreadystatechange = function() {
-  if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-    data = JSON.parse(xhr.responseText);
-    console.log(data);
-    htmlButtons()
-  }
-};
-xhr.send();
+async function getButtons(){  
+  ws.addEventListener('open', function(event) {
+    console.log('WebSocket connection opened');
+    
+    // Request list of buttons
+    ws.send(JSON.stringify({ type: 'list' }));
+  });
+  
+  ws.addEventListener('message', function(event) {
+    const message = JSON.parse(event.data);
+    console.log(`Received message: ${message}`);
+    
+    if (message.type === 'list') {
+      const data = message.data;
+      console.log(data);
+      htmlButtons(data);
+    }
+  });
 }
-
 function api(state){
     switch(state){
         case stop:
