@@ -1,7 +1,7 @@
 const output = document.querySelector('.output');
 let request, data;
 const xhr = new XMLHttpRequest();
-let path = "http://" + getSettings("ip") + ":3000/"
+let path = "https://" + getSettings("ip") + ":3000/"
 //Load buttons on startup
 document.addEventListener('DOMContentLoaded', htmlSettings(), false); 
 
