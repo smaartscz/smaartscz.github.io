@@ -1,18 +1,19 @@
 const output = document.querySelector('.output');
 let request, data;
 const xhr = new XMLHttpRequest();
-let path = "https://" + getSettings("ip") + ":3000/"
+let path = "https://" + getSettings("ip") + ":3000/";
+xhr.withCredentials = true;
+
 //Load buttons on startup
 document.addEventListener('DOMContentLoaded', htmlSettings(), false); 
 
 async function getButtons(){
   xhr.open('GET', path + 'list', true);
-  xhr.withCredentials = true; // Include credentials in the request
   xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
       data = JSON.parse(xhr.responseText);
       console.log(data);
-      htmlButtons();
+      htmlButtons()
     }
   };
   xhr.send();
