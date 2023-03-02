@@ -1,59 +1,70 @@
+const https = require('https');
+const fs = require('fs');
+
 const output = document.querySelector('.output');
 let request, data;
-const xhr = new XMLHttpRequest();
-let path = "https://" + getSettings("ip") + ":3000/";
-xhr.withCredentials = true;
+const options = {
+  hostname: getSettings('ip'),
+  port: 3000,
+  path: '/list',
+  method: 'GET',
+  rejectUnauthorized: false  // bypass SSL certificate verification
+};
 
 //Load buttons on startup
 document.addEventListener('DOMContentLoaded', htmlSettings(), false); 
 
 async function getButtons(){
-  xhr.open('GET', path + 'list', true);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-      data = JSON.parse(xhr.responseText);
+  https.get(options, (res) => {
+    res.on('data', (d) => {
+      data = JSON.parse(d);
       console.log(data);
-      htmlButtons()
-    }
-  };
-  xhr.send();
+      htmlButtons();
+    });
+  }).on('error', (e) => {
+    console.error(e);
+  });
 }
 
 function api(state){
     switch(state){
         case stop:
-        xhr.open("GET", path + "stop", true)
-        xhr.send();
+          https.get("https://" + getSettings("ip") + ":3000/stop", (res) => {
+            console.log(res.statusCode);
+          }).on('error', (e) => {
+            console.error(e);
+          });
         break;
         default:
-            xhr.open("GET", path + "play?id=" + state);
-            xhr.send();
+          https.get("https://" + getSettings("ip") + ":3000/play?id=" + state, (res) => {
+            console.log(res.statusCode);
+          }).on('error', (e) => {
+            console.error(e);
+          });
     }
-
 }
 
 function saveSettings(){
   const ip = document.getElementById("ip").value;
   document.cookie = "ip=" + ip + "; expires=Fri, 31 Dec 9999 23:59:59 UTC; path=/";
-getButtons();
+  getButtons();
 }
 
 function getSettings(cname){
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
     }
-    return "";
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
   }
-
+  return "";
+}
 //Generating HTML for buttons
 async function htmlButtons(){
     let html = '<span class="header"><button id="stop" data-i18n="general.stop-panic" class="btn btn-stop" onClick="api(stop)">STOP PANIK EMERGENCY</button><button data-i18n="settings.name"class="btn btn-primary" onClick="htmlSettings();">Settings</button></span>';
