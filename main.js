@@ -1,31 +1,23 @@
 const output = document.querySelector('.output');
 let request, data;
-let path = "ws://" + getSettings("ip") + ":3000/"
-const ws = new WebSocket(path);
+const xhr = new XMLHttpRequest();
+let path = "http://" + getSettings("ip") + ":3000/"
 //Load buttons on startup
 document.addEventListener('DOMContentLoaded', htmlSettings(), false); 
 
-
-
-async function getButtons(){  
-  ws.addEventListener('open', function(event) {
-    console.log('WebSocket connection opened');
-    
-    // Request list of buttons
-    ws.send(JSON.stringify({ type: 'list' }));
-  });
-  
-  ws.addEventListener('message', function(event) {
-    const message = JSON.parse(event.data);
-    console.log(`Received message: ${message}`);
-    
-    if (message.type === 'list') {
-      const data = message.data;
+async function getButtons(){
+  xhr.open('GET', path + 'list', true);
+  xhr.withCredentials = true; // Include credentials in the request
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+      data = JSON.parse(xhr.responseText);
       console.log(data);
-      htmlButtons(data);
+      htmlButtons();
     }
-  });
+  };
+  xhr.send();
 }
+
 function api(state){
     switch(state){
         case stop:
