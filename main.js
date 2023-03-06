@@ -5,6 +5,7 @@ const options = {
   port: 3000,
   path: '/list',
   method: 'GET',
+  rejectUnauthorized: false
 };
 
 //Load buttons on startup
@@ -73,10 +74,8 @@ async function htmlSettings() {
   let html = '<h1 data-i18n="settings.name">SETTINGS</h1>';
     html += 'Enter IP address: ';
     html += '<input type="text" id="ip"/>'
-
- 
-    html += '<br><button id="save" data-i18n="general.save" class="btn btn-save" onClick="saveSettings()">Save</button> <button id="cancel" data-i18n="general.cancel" class="btn btn-cancel" onClick="getButtons()">Cancel</button>'
-  //Show HTML
+    html += '<br><button id="save" data-i18n="general.save" class="btn btn-save" onClick="saveSettings()">Save</button> <button id="cancel" data-i18n="general.cancel/>'
+      //Show HTML
   output.innerHTML = html;
   document.getElementById("ip").value = getSettings("ip");
   console.log(getSettings("ip"));
