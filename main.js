@@ -1,6 +1,3 @@
-const https = require('https');
-const fs = require('fs');
-
 const output = document.querySelector('.output');
 let request, data;
 const options = {
@@ -8,39 +5,34 @@ const options = {
   port: 3000,
   path: '/list',
   method: 'GET',
-  rejectUnauthorized: false  // bypass SSL certificate verification
 };
 
 //Load buttons on startup
 document.addEventListener('DOMContentLoaded', htmlSettings(), false); 
 
 async function getButtons(){
-  https.get(options, (res) => {
-    res.on('data', (d) => {
-      data = JSON.parse(d);
-      console.log(data);
-      htmlButtons();
-    });
-  }).on('error', (e) => {
-    console.error(e);
-  });
+  const url = `https://${options.hostname}:${options.port}${options.path}`;
+  try {
+    const response = await fetch(url, { method: options.method, redirect: 'follow', mode: 'cors', credentials: 'include', cache: 'no-cache', referrerPolicy: 'no-referrer', headers: { 'Content-Type': 'application/json' }, agent: options.agent, rejectUnauthorized: false });
+    const data = await response.json();
+    console.log(data);
+    htmlButtons();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function api(state){
     switch(state){
         case stop:
-          https.get("https://" + getSettings("ip") + ":3000/stop", (res) => {
-            console.log(res.statusCode);
-          }).on('error', (e) => {
-            console.error(e);
-          });
+          fetch(`https://${getSettings('ip')}:3000/stop`, { method: 'GET', rejectUnauthorized: false })
+            .then(response => console.log(response.status))
+            .catch(error => console.error(error));
         break;
         default:
-          https.get("https://" + getSettings("ip") + ":3000/play?id=" + state, (res) => {
-            console.log(res.statusCode);
-          }).on('error', (e) => {
-            console.error(e);
-          });
+          fetch(`https://${getSettings('ip')}:3000/play?id=${state}`, { method: 'GET', rejectUnauthorized: false })
+            .then(response => console.log(response.status))
+            .catch(error => console.error(error));
     }
 }
 
